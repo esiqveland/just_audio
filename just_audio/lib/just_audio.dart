@@ -982,6 +982,7 @@ class AudioPlayer {
     _audioSources.values.forEach((s) => s._dispose());
     _audioSources.clear();
     _proxy?.stop();
+    _proxy = null;
     await _durationSubject.close();
     await _loopModeSubject.close();
     await _shuffleModeEnabledSubject.close();
