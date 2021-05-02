@@ -1412,6 +1412,10 @@ class _ProxyHttpServer {
   /// Register a [UriAudioSource] to be served through this proxy. This may be
   /// called only after [start] has completed.
   Uri addUriAudioSource(UriAudioSource source) {
+    if (!_running) {
+      throw PlayerException(-1, 'addStreamAudioSource when _proxy was closed.');
+    }
+
     final uri = source.uri;
     final headers = <String, String>{};
     if (source.headers != null) {
@@ -1432,6 +1436,9 @@ class _ProxyHttpServer {
   /// Register a [StreamAudioSource] to be served through this proxy. This may
   /// be called only after [start] has completed.
   Uri addStreamAudioSource(StreamAudioSource source) {
+    if (!_running) {
+      throw PlayerException(-1, 'addStreamAudioSource when _proxy was closed.');
+    }
     final uri = _sourceUri(source);
     final path = _requestKey(uri);
     _handlerMap[path] = _proxyHandlerForSource(source);
@@ -1450,12 +1457,15 @@ class _ProxyHttpServer {
   /// Starts the server.
   Future start() async {
     _server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
+    _running = true;
     _server.listen((request) async {
       if (request.method == 'GET') {
         final uriPath = _requestKey(request.uri);
         final handler = _handlerMap[uriPath]!;
         handler(request);
       }
+    }, onDone: () {
+      _running = false;
     });
   }
 
