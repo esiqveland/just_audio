@@ -1932,7 +1932,7 @@ class _ProxyHttpServer {
     onDone: () {
       _running = false;
     },
-    onError: () {
+    onError: (Object e, StackTrace stackTrace) {
       _running = false;
     },
     );
