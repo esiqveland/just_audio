@@ -775,6 +775,7 @@ class AudioPlayer {
       return duration;
     } on PlatformException catch (e) {
       try {
+        _proxy.start();
         throw PlayerException(int.parse(e.code), e.message);
       } on FormatException catch (_) {
         if (e.code == 'abort') {
@@ -1927,7 +1928,14 @@ class _ProxyHttpServer {
         final handler = _handlerMap[uriPath]!;
         handler(request);
       }
-    });
+    },
+    onDone: () {
+      _running = false;
+    },
+    onError: () {
+      _running = false;
+    },
+    );
   }
 
   /// Stops the server
